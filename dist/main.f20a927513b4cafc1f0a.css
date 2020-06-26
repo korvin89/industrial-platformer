@@ -1,0 +1,1 @@
+@font-face{font-family:KemcoPixel;src:url(fonts/KemcoPixel.ttf)}body{display:flex;align-items:center;justify-content:center;margin:0;background-color:#1d212d}body.touch{max-height:100%;padding:0}#app{max-width:1024px}.font-preload{font-family:KemcoPixel;position:absolute;left:-100px}

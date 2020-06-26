@@ -1,0 +1,33 @@
+@font-face {
+    font-family: 'KemcoPixel';
+    src: url('../assets/fonts/KemcoPixel.ttf');
+}
+
+@viewport {
+
+}
+
+body {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    // max-height: calc(100% - 40px);
+    // padding: 20px 0;
+    margin: 0;
+    background-color: #1d212d;
+
+    &.touch {
+        max-height: 100%;
+        padding: 0;
+    }
+}
+
+#app {
+    max-width: 1024px;
+}
+
+.font-preload {
+    font-family: 'KemcoPixel';
+    position: absolute;
+    left: -100px;
+}

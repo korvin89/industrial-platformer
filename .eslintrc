@@ -1,0 +1,14 @@
+{
+    "extends": ["eslint-config-jekaoz/common", "eslint-config-jekaoz/client"],
+    "overrides": [{
+        "files": "**/*",
+        "rules": {
+            "@typescript-eslint/no-explicit-any": 0,
+            "@typescript-eslint/member-ordering": 0,
+            "new-cap": 0,
+            "no-new": 0,
+            "no-case-declarations": 0,
+            "no-unused-expressions": 0
+        }
+    }]
+}

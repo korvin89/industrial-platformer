@@ -1,0 +1,23 @@
+{
+    "compilerOptions": {
+        "outDir": "./dist/",
+        "allowSyntheticDefaultImports": true,
+        "allowJs": true,
+        "noImplicitAny": true,
+        "noUnusedParameters": true,
+        "noFallthroughCasesInSwitch": true,
+        "noEmitOnError": true,
+        "experimentalDecorators": true,
+        "module": "es6",
+        "target": "es2017",
+        "newLine": "lf",
+    },
+    "include": [
+        "**/*",
+        "tsconfig.json"
+    ],
+    "exclude": [
+        "node_modules",
+        "webpack.config.js"
+    ],
+}
