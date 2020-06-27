@@ -1,6 +1,4 @@
 import Phaser from 'phaser';
-// @ts-ignore
-import VirtualJoystick from 'phaser3-rex-plugins/plugins/virtualjoystick.js';
 import ActionButton from './UI/ActionButton';
 import SoundManager from '../libs/SoundManager';
 import {ACTION_COOLDOWN} from '../constants/game';
@@ -22,56 +20,19 @@ export default class Player {
     soundManager: SoundManager;
     sprite: Phaser.GameObjects.Sprite;
     flash: Phaser.GameObjects.Sprite;
-    keys: IKeys;
+    keys: IKeys | null = null;
     leftBtn: ActionButton | null = null;
     rightBtn: ActionButton | null = null;
     upBtn: ActionButton | null = null;
-    flashBtn: ActionButton | null = null;
-    joystick: VirtualJoystick | null = null;
-    flashBtnPressed = false;
-    lastFlashTime = Date.now();
-    inJump = false;
+    hitBtn: ActionButton | null = null;
+    lastHitTime = Date.now();
 
     constructor(props: IPlayer) {
         this.scene = props.scene;
         this.soundManager = props.soundManager;
-
         this.createAnimations();
-        this.createKeys();
+        this.createControls();
         this.createSprite(props.x, props.y);
-
-        this.scene.input.addPointer(4);
-        console.log('#3');
-
-        if (this.scene.sys.game.device.input.touch) {
-            this.leftBtn = new ActionButton({
-                scene: this.scene,
-                x: 16 + 32,
-                y: this.scene.cameras.main.height - 16 - 32,
-                type: 'left',
-            });
-
-            this.rightBtn = new ActionButton({
-                scene: this.scene,
-                x: 16 + 32 + 64 + 6,
-                y: this.scene.cameras.main.height - 16 - 32,
-                type: 'right',
-            });
-
-            this.flashBtn = new ActionButton({
-                scene: this.scene,
-                x: this.scene.cameras.main.width - 16 - 32,
-                y: this.scene.cameras.main.height - 16 - 32,
-                type: 'hit',
-            });
-
-            this.upBtn = new ActionButton({
-                scene: this.scene,
-                x: this.scene.cameras.main.width - 16 - 32,
-                y: this.scene.cameras.main.height - 16 - 32 - 64 - 10,
-                type: 'up',
-            });
-        }
     }
 
     createAnimations() {
@@ -107,18 +68,50 @@ export default class Player {
         });
     }
 
-    createKeys() {
-        const {SPACE, LEFT, RIGHT, UP, W, A, D} = Phaser.Input.Keyboard.KeyCodes;
+    createControls() {
+        if (this.scene.sys.game.device.input.touch) {
+            this.scene.input.addPointer(4);
 
-        this.keys = this.scene.input.keyboard.addKeys({
-            space: SPACE,
-            left: LEFT,
-            right: RIGHT,
-            up: UP,
-            w: W,
-            a: A,
-            d: D,
-        }) as IKeys;
+            this.leftBtn = new ActionButton({
+                scene: this.scene,
+                x: 48,
+                y: this.scene.cameras.main.height - 48,
+                type: 'left',
+            });
+
+            this.rightBtn = new ActionButton({
+                scene: this.scene,
+                x: 118,
+                y: this.scene.cameras.main.height - 48,
+                type: 'right',
+            });
+
+            this.hitBtn = new ActionButton({
+                scene: this.scene,
+                x: this.scene.cameras.main.width - 48,
+                y: this.scene.cameras.main.height - 48,
+                type: 'hit',
+            });
+
+            this.upBtn = new ActionButton({
+                scene: this.scene,
+                x: this.scene.cameras.main.width - 48,
+                y: this.scene.cameras.main.height - 122,
+                type: 'up',
+            });
+        } else {
+            const {SPACE, LEFT, RIGHT, UP, W, A, D} = Phaser.Input.Keyboard.KeyCodes;
+
+            this.keys = this.scene.input.keyboard.addKeys({
+                space: SPACE,
+                left: LEFT,
+                right: RIGHT,
+                up: UP,
+                w: W,
+                a: A,
+                d: D,
+            }) as IKeys;
+        }
     }
 
     createSprite(x: number, y: number) {
@@ -156,19 +149,6 @@ export default class Player {
         }, 0);
     }
 
-    createJoystick() {
-        this.joystick = new VirtualJoystick(this.scene, {
-            x: 82,
-            y: 334,
-            radius: 50,
-            base: this.scene.add.circle(0, 0, 50, 0x4d5762, 0.5).setDepth(20),
-            thumb: this.scene.add.circle(0, 0, 25, 0xffffff, 0.25).setDepth(20),
-            dir: '8dir',
-            // forceMin: 16,
-            // enable: true
-        });
-    }
-
     hit() {
         if (this.flash?.anims?.isPlaying) {
             return;
@@ -185,13 +165,14 @@ export default class Player {
     // eslint-disable-next-line complexity
     update() {
         const {keys, sprite} = this;
+
+        const now = Date.now();
         const onGround = sprite.body.blocked.down;
         const acceleration = onGround ? 400 : 200;
-        const now = Date.now();
-
-        const left = keys.left.isDown || keys.a.isDown || this.leftBtn?.pressed;
-        const right = keys.right.isDown || keys.d.isDown || this.rightBtn?.pressed;
-        const up = keys.up.isDown || keys.w.isDown || this.upBtn?.pressed;
+        const left = keys?.left.isDown || keys?.a.isDown || this.leftBtn?.pressed;
+        const right = keys?.right.isDown || keys?.d.isDown || this.rightBtn?.pressed;
+        const up = keys?.up.isDown || keys?.w.isDown || this.upBtn?.pressed;
+        const hit = keys?.space.isDown || this.hitBtn?.pressed;
 
         if (left) {
             sprite.setAccelerationX(-acceleration);
@@ -216,9 +197,9 @@ export default class Player {
             sprite.setVelocityY(-400);
         }
 
-        if ((keys.space.isDown || this.flashBtn?.pressed) && now - this.lastFlashTime >= ACTION_COOLDOWN) {
+        if (hit && now - this.lastHitTime >= ACTION_COOLDOWN) {
             sprite.anims.play('player-hit', true);
-            this.lastFlashTime = now;
+            this.lastHitTime = now;
             this.hit();
         }
 
