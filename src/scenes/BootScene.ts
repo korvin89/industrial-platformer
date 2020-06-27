@@ -83,6 +83,21 @@ export default class BootScene extends Phaser.Scene {
 
         this.load.spritesheet('button_music', `${PATH.SPRITESHEET}/button_music.png`, FRAME_CONFIG);
         this.load.spritesheet('button_sfx', `${PATH.SPRITESHEET}/button_sfx.png`, FRAME_CONFIG);
+        this.load.spritesheet(
+            'button_left',
+            `${PATH.SPRITESHEET}/button_left.png`,
+            {frameWidth: 64, frameHeight: 64},
+        );
+        this.load.spritesheet(
+            'button_right',
+            `${PATH.SPRITESHEET}/button_right.png`,
+            {frameWidth: 64, frameHeight: 64},
+        );
+        this.load.spritesheet(
+            'button_up',
+            `${PATH.SPRITESHEET}/button_up.png`,
+            {frameWidth: 64, frameHeight: 64},
+        );
 
         this.load.image('spike', `${PATH.IMAGES}/spike.png`);
         this.load.image('jumper_opened', `${PATH.IMAGES}/jumper_opened.png`);
