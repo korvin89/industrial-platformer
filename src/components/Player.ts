@@ -36,6 +36,9 @@ export default class Player {
         this.createKeys();
         this.createSprite(props.x, props.y);
 
+        this.scene.input.addPointer(4);
+        console.log('#2');
+
         if (this.scene.sys.game.device.input.touch) {
             this.createJoystick();
 

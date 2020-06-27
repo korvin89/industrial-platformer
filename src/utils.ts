@@ -25,9 +25,6 @@ export const getGameConfig = (
                 gravity: {y: 1000},
             },
         },
-        input: {
-            activePointers: 2,
-        },
         parent: document.getElementById('app'),
         backgroundColor: '#1d212d',
         pixelArt: true,
