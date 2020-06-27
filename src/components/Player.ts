@@ -1,6 +1,7 @@
 import Phaser from 'phaser';
 // @ts-ignore
 import VirtualJoystick from 'phaser3-rex-plugins/plugins/virtualjoystick.js';
+import ActionButton from './UI/ActionButton';
 import SoundManager from '../libs/SoundManager';
 import {ACTION_COOLDOWN} from '../constants/game';
 
@@ -22,8 +23,11 @@ export default class Player {
     sprite: Phaser.GameObjects.Sprite;
     flash: Phaser.GameObjects.Sprite;
     keys: IKeys;
+    leftBtn: ActionButton | null = null;
+    rightBtn: ActionButton | null = null;
+    upBtn: ActionButton | null = null;
+    flashBtn: ActionButton | null = null;
     joystick: VirtualJoystick | null = null;
-    flashBtn: Phaser.GameObjects.Arc;
     flashBtnPressed = false;
     lastFlashTime = Date.now();
     inJump = false;
@@ -37,27 +41,36 @@ export default class Player {
         this.createSprite(props.x, props.y);
 
         this.scene.input.addPointer(4);
-        console.log('#2');
+        console.log('#3');
 
         if (this.scene.sys.game.device.input.touch) {
-            this.createJoystick();
+            this.leftBtn = new ActionButton({
+                scene: this.scene,
+                x: 16 + 32,
+                y: this.scene.cameras.main.height - 16 - 32,
+                type: 'left',
+            });
 
-            const x = this.scene.cameras.main.width - 57;
-            const y = this.scene.cameras.main.height - 75;
-            this.flashBtn = this.scene.add.circle(x, y, 25, 0xffffff)
-                .setAlpha(0.25)
-                .setDepth(20)
-                .setScrollFactor(0);
+            this.rightBtn = new ActionButton({
+                scene: this.scene,
+                x: 16 + 32 + 64 + 6,
+                y: this.scene.cameras.main.height - 16 - 32,
+                type: 'right',
+            });
 
-            this.flashBtn.setInteractive()
-                .on(Phaser.Input.Events.POINTER_DOWN, () => {
-                    this.flashBtn.setAlpha(0.5);
-                    this.flashBtnPressed = true;
-                })
-                .on(Phaser.Input.Events.POINTER_UP, () => {
-                    this.flashBtn.setAlpha(0.25);
-                    this.flashBtnPressed = false;
-                });
+            this.flashBtn = new ActionButton({
+                scene: this.scene,
+                x: this.scene.cameras.main.width - 16 - 32,
+                y: this.scene.cameras.main.height - 16 - 32,
+                type: 'hit',
+            });
+
+            this.upBtn = new ActionButton({
+                scene: this.scene,
+                x: this.scene.cameras.main.width - 16 - 32,
+                y: this.scene.cameras.main.height - 16 - 32 - 64 - 10,
+                type: 'up',
+            });
         }
     }
 
@@ -176,9 +189,9 @@ export default class Player {
         const acceleration = onGround ? 400 : 200;
         const now = Date.now();
 
-        const left = keys.left.isDown || keys.a.isDown || this.joystick?.left;
-        const right = keys.right.isDown || keys.d.isDown || this.joystick?.right;
-        const up = keys.up.isDown || keys.w.isDown || this.joystick?.up;
+        const left = keys.left.isDown || keys.a.isDown || this.leftBtn?.pressed;
+        const right = keys.right.isDown || keys.d.isDown || this.rightBtn?.pressed;
+        const up = keys.up.isDown || keys.w.isDown || this.upBtn?.pressed;
 
         if (left) {
             sprite.setAccelerationX(-acceleration);
@@ -203,7 +216,7 @@ export default class Player {
             sprite.setVelocityY(-400);
         }
 
-        if ((keys.space.isDown || this.flashBtnPressed) && now - this.lastFlashTime >= ACTION_COOLDOWN) {
+        if ((keys.space.isDown || this.flashBtn?.pressed) && now - this.lastFlashTime >= ACTION_COOLDOWN) {
             sprite.anims.play('player-hit', true);
             this.lastFlashTime = now;
             this.hit();
