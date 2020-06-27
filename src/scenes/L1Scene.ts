@@ -61,6 +61,12 @@ export default class L1Scene extends Phaser.Scene {
         if (!this.soundManager.bgMusicMuted) {
             this.soundManager.playBGMusic();
         }
+
+        if (this.sys.game.device.input.touch) {
+            setTimeout(() => {
+                this.scale.startFullscreen();
+            }, 1000);
+        }
     }
 
     getPoint(scope: string, target: string) {
