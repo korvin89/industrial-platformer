@@ -1,5 +1,8 @@
 export const ACTION_COOLDOWN = 500;
 
+export const UI_ALPHA = 0.25;
+export const UI_ALPHA_ACTIVE = 0.5;
+
 export const VOLUME_KEY = {
     STEP: 'step',
     JUMP: 'jump',
