@@ -62,14 +62,11 @@ export default class L1Scene extends Phaser.Scene {
             this.soundManager.playBGMusic();
         }
 
-        // document.documentElement.requestFullscreen();
-        // document.getElementById('app').requestFullscreen();
-
-        // if (this.sys.game.device.input.touch) {
-        //     setTimeout(() => {
-        //         this.scale.startFullscreen();
-        //     }, 1000);
-        // }
+        if (this.sys.game.device.input.touch) {
+            setTimeout(() => {
+                this.scale.startFullscreen();
+            }, 1000);
+        }
     }
 
     getPoint(scope: string, target: string) {
@@ -104,20 +101,6 @@ export default class L1Scene extends Phaser.Scene {
             },
             onSwitchOff: () => {
                 this.soundManager.muteSFX();
-            },
-        });
-
-        new TumblerButton({
-            scene: this,
-            texture: 'button_sfx',
-            x: this.cameras.main.width - 32,
-            y: 110,
-            switchedOn: !sfxMuted,
-            onSwitchOn: () => {
-                this.scale.stopFullscreen();
-            },
-            onSwitchOff: () => {
-                this.scale.startFullscreen();
             },
         });
     }
