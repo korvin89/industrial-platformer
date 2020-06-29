@@ -4,6 +4,7 @@ import BootScene from './scenes/BootScene';
 import L1Scene from './scenes/L1Scene';
 import L2Scene from './scenes/L2Scene';
 import L3Scene from './scenes/L3Scene';
+import L4Scene from './scenes/L4Scene';
 
 import {getGameConfig} from './utils';
 import {staticConfig} from './constants/common';
@@ -15,6 +16,7 @@ const config = getGameConfig(staticConfig, [
     L1Scene,
     L2Scene,
     L3Scene,
+    L4Scene,
 ]);
 
 new Phaser.Game(config);

@@ -24,6 +24,8 @@ export default class L1Scene extends Phaser.Scene {
     }
 
     create({volumeConfig}: {volumeConfig?: {[key: string]: number}}) {
+        const isTouch = this.sys.game.device.input.touch;
+
         this.soundManager = new SoundManager({
             manager: this.sound,
             volumeConfig: volumeConfig || {...DEFAULT_VOLUME_CONFIG},
@@ -31,15 +33,17 @@ export default class L1Scene extends Phaser.Scene {
 
         this.isPlayerDisabled = false;
 
-        this.add
-            .text(16, 16, 'Arrow keys or WASD to move & jump\nSpace to hit', {
-                font: '18px monospace',
-                fill: '#000000',
-                padding: {x: 20, y: 10},
-                backgroundColor: '#ffffff',
-            })
-            .setScrollFactor(0)
-            .setDepth(11);
+        if (!isTouch) {
+            this.add
+                .text(16, 16, 'Arrow keys or WASD to move & jump\nSpace to hit', {
+                    font: '18px monospace',
+                    fill: '#000000',
+                    padding: {x: 20, y: 10},
+                    backgroundColor: '#ffffff',
+                })
+                .setScrollFactor(0)
+                .setDepth(11);
+        }
 
         this.tilemap = this.make.tilemap({key: 'mapL1'});
         const tiles = this.tilemap.addTilesetImage('industrial.v2', 'tiles');
@@ -58,11 +62,11 @@ export default class L1Scene extends Phaser.Scene {
         this.cameras.main.startFollow(this.player.sprite, true, 0.1, 0.1);
         this.cameras.main.setBounds(0, 0, this.tilemap.widthInPixels, this.tilemap.heightInPixels);
 
-        if (!this.soundManager.bgMusicMuted) {
+        if (!this.soundManager.isBGMusicPlaying()) {
             this.soundManager.playBGMusic();
         }
 
-        if (this.sys.game.device.input.touch) {
+        if (isTouch) {
             setTimeout(() => {
                 this.scale.startFullscreen();
             }, 1000);
@@ -168,7 +172,6 @@ export default class L1Scene extends Phaser.Scene {
 
         this.player.freeze();
 
-        this.soundManager.stopBGMusic();
         this.soundManager.die();
 
         cam.once('camerafadeoutcomplete', () => {

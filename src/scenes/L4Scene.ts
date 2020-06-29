@@ -5,7 +5,7 @@ import Sphere from '../components/enviroment/Sphere';
 import Lever from '../components/enviroment/Lever';
 import Jumper from '../components/enviroment/Jumper';
 import HidingPlatform from '../components/enviroment/HidingPlatform';
-import Bat from '../components/hazard/Bat';
+import Track from '../components/enviroment/Track';
 import SoundManager from '../libs/SoundManager';
 import {Point} from '../typings/game';
 
@@ -19,6 +19,7 @@ export default class L1Scene extends Phaser.Scene {
     obstacles: Phaser.Tilemaps.DynamicTilemapLayer;
     spikes: Phaser.Physics.Arcade.StaticGroup;
     jumpers: Phaser.GameObjects.Group;
+    tracks: Phaser.GameObjects.Group;
     hazards: Phaser.GameObjects.Group;
     platforms: HidingPlatform[];
     sphere: Sphere;
@@ -26,14 +27,14 @@ export default class L1Scene extends Phaser.Scene {
     lever: Lever;
 
     constructor() {
-        super('L3');
+        super('L4');
     }
 
     create({volumeConfig}: {volumeConfig: {[key: string]: number}}) {
         this.soundManager = new SoundManager({volumeConfig, manager: this.sound});
         this.isPlayerDisabled = false;
 
-        this.tilemap = this.make.tilemap({key: 'mapL3'});
+        this.tilemap = this.make.tilemap({key: 'mapL4'});
         const tiles = this.tilemap.addTilesetImage('industrial.v2', 'tiles');
         this.tilemap.createDynamicLayer('background', tiles);
         this.obstacles = this.tilemap.createDynamicLayer('obstacles', tiles);
@@ -42,9 +43,10 @@ export default class L1Scene extends Phaser.Scene {
         this.createUI();
         this.createSpikes();
         this.createPlayer();
+        this.createLever();
+        this.createTracks();
         this.createHidingPlatform();
-        this.createJumpers();
-        this.createHazards();
+        this.createJumper();
         this.createSphere();
 
         this.obstacles.setCollisionByProperty({collides: true});
@@ -53,21 +55,6 @@ export default class L1Scene extends Phaser.Scene {
 
         this.cameras.main.startFollow(this.player.sprite, true, 0.1, 0.1);
         this.cameras.main.setBounds(0, 0, this.tilemap.widthInPixels, this.tilemap.heightInPixels);
-
-        setTimeout(() => {
-            this.timer = this.time.addEvent({
-                delay: 3000,
-                callback: () => {
-                    this.platforms.forEach((platform, index) => {
-                        setTimeout(() => {
-                            platform?.switch();
-                        }, 100 * index);
-                    });
-                },
-                callbackScope: this,
-                loop: true,
-            });
-        }, 100);
 
         if (!this.soundManager.isBGMusicPlaying()) {
             this.soundManager.playBGMusic();
@@ -150,12 +137,35 @@ export default class L1Scene extends Phaser.Scene {
         });
     }
 
+    createLever() {
+        const {x, y} = this.getPoint('points', 'lever');
+        this.lever = new Lever({
+            scene: this, x, y,
+            soundManager: this.soundManager,
+            onSwitchOn: () => {
+                this.platforms.forEach((platform) => platform.switch());
+            },
+            onSwitchOff: () => {
+                this.platforms.forEach((platform) => platform.switch());
+            },
+        });
+    }
+
+    createTracks() {
+        this.tracks = this.physics.add.group({allowGravity: false});
+
+        this.getPoints('points', ['track1', 'track2', 'track3']).forEach(({x, y}, index) => {
+            this.tracks.add(new Track({
+                scene: this, x, y,
+                dir: index === 1 ? 'right' : 'left',
+            }));
+        });
+    }
+
     createHidingPlatform() {
         this.platforms = [];
 
-        this.getPoints('platforms', [
-            '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14', '15',
-        ])
+        this.getPoints('points', ['platform1', 'platform2', 'platform3', 'platform4'])
             .forEach(({x, y}) => {
                 const platform = new HidingPlatform({
                     scene: this, x, y,
@@ -166,45 +176,13 @@ export default class L1Scene extends Phaser.Scene {
             });
     }
 
-    createJumpers() {
-        this.jumpers = this.physics.add.group({allowGravity: false});
-
-        this.getPoints('points', ['jumper1', 'jumper2', 'jumper3', 'jumper4']).forEach(({x, y}, index) => {
-            const jumper = new Jumper({
-                scene: this, x, y,
-                tile: this.obstacles.getTileAtWorldXY(x, y),
-                id: `jumper_${index + 1}`,
-                soundManager: this.soundManager,
-            });
-
-            this.jumpers.add(jumper);
+    createJumper() {
+        const {x, y} = this.getPoint('points', 'jumper');
+        this.jumper = new Jumper({
+            scene: this, x, y,
+            tile: this.obstacles.getTileAtWorldXY(x, y),
+            soundManager: this.soundManager,
         });
-    }
-
-    createHazards() {
-        this.hazards = this.physics.add.group({allowGravity: false});
-
-        const [b1Start, b1End] = this.getPoints('points', ['h1_start', 'h1_end']);
-        const bat1 = new Bat({
-            scene: this,
-            x: b1Start.x,
-            y: b1Start.y,
-            start: b1Start,
-            end: b1End,
-        });
-        bat1.follow();
-        this.hazards.add(bat1);
-
-        const [b2Start, b2End] = this.getPoints('points', ['h2_start', 'h2_end']);
-        const bat2 = new Bat({
-            scene: this,
-            x: b2Start.x,
-            y: b2Start.y,
-            start: b2Start,
-            end: b2End,
-        });
-        bat2.follow();
-        this.hazards.add(bat2);
     }
 
     createSphere() {
@@ -215,27 +193,25 @@ export default class L1Scene extends Phaser.Scene {
         });
     }
 
-    checkJumpersOverlap() {
-        this.physics.world.overlap(this.jumpers, this.player.sprite, (o1, o2) => {
-            const jumper = o2 as Jumper;
-            const player = o1 as Phaser.GameObjects.Sprite;
+    checkLeversOverlap() {
+        this.physics.world.overlap(this.lever, this.player.flash, (o1) => {
+            (o1 as Lever).switch();
+        });
+    }
 
-            jumper.switch();
-            player.setVelocityY(-650);
+    checkTracksOverlap() {
+        this.player.deltaHorAcceleration = 0;
 
-            switch (jumper.id) {
-                case 'jumper_1': {
-                    jumper.switch();
-                    player.setVelocityY(-650);
-                    break;
-                }
+        this.physics.world.overlap(this.tracks, this.player.sprite, (_, o2) => {
+            const track = o2 as Track;
+            this.player.deltaHorAcceleration = track.power;
+        });
+    }
 
-                default: {
-                    jumper.switch();
-                    player.setVelocityY(-550);
-                    break;
-                }
-            }
+    checkJumperOverlap() {
+        this.physics.world.overlap(this.jumper, this.player.sprite, (o1, o2) => {
+            (o1 as Jumper).switch();
+            (o2 as Phaser.GameObjects.Sprite).setVelocityY(-600);
         });
     }
 
@@ -248,7 +224,7 @@ export default class L1Scene extends Phaser.Scene {
     checkGameOver() {
         return (
             this.physics.world.overlap(this.player.sprite, this.spikes)
-            || this.physics.world.overlap(this.player.sprite, this.hazards)
+            || this.player.sprite.y > this.obstacles.height
         );
     }
 
@@ -260,7 +236,6 @@ export default class L1Scene extends Phaser.Scene {
         cam.fade(250, 0, 0, 0);
 
         this.player.freeze();
-        this.timer.remove();
 
         this.soundManager.die();
 
@@ -277,7 +252,6 @@ export default class L1Scene extends Phaser.Scene {
         cam.zoomTo(2, 1000);
 
         this.player.freeze();
-        this.timer.remove();
 
         this.soundManager.stopBGMusic();
         this.soundManager.sphere();
@@ -287,9 +261,8 @@ export default class L1Scene extends Phaser.Scene {
         });
 
         cam.once('camerafadeoutcomplete', () => {
-            const {volumeConfig} = this.soundManager;
             this.player.destroy();
-            this.scene.start('L4', {volumeConfig});
+            this.scene.restart();
         });
     };
 
@@ -299,7 +272,9 @@ export default class L1Scene extends Phaser.Scene {
         }
 
         this.player.update();
-        this.checkJumpersOverlap();
+        this.checkLeversOverlap();
+        this.checkTracksOverlap();
+        this.checkJumperOverlap();
         this.checkSphereOverlap();
 
         if (this.checkGameOver()) {

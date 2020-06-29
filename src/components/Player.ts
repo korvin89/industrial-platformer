@@ -26,6 +26,7 @@ export default class Player {
     upBtn: ActionButton | null = null;
     hitBtn: ActionButton | null = null;
     lastHitTime = Date.now();
+    deltaHorAcceleration = 0;
 
     constructor(props: IPlayer) {
         this.scene = props.scene;
@@ -117,7 +118,7 @@ export default class Player {
     createSprite(x: number, y: number) {
         this.sprite = this.scene.physics.add
             .sprite(x, y, 'player', 0)
-            .setDrag(1000, 0)
+            .setDrag(2000, 0)
             .setMaxVelocity(200, 1000)
             .setSize(18, 24)
             .setOffset(7, 9)
@@ -175,21 +176,33 @@ export default class Player {
         const hit = keys?.space.isDown || this.hitBtn?.pressed;
 
         if (left) {
-            sprite.setAccelerationX(-acceleration);
+            if (sprite.body.velocity.x > 0) {
+                sprite.setVelocityX(0);
+            }
+
+            sprite.setAccelerationX(-acceleration + this.deltaHorAcceleration);
             sprite.setFlipX(true);
 
             if (onGround && !sprite.body.blocked.left) {
                 this.soundManager.step();
             }
         } else if (right) {
-            sprite.setAccelerationX(acceleration);
+            if (sprite.body.velocity.x < 0) {
+                sprite.setVelocityX(0);
+            }
+
+            sprite.setAccelerationX(acceleration + this.deltaHorAcceleration);
             sprite.setFlipX(false);
 
             if (onGround && !sprite.body.blocked.right) {
                 this.soundManager.step();
             }
         } else {
-            sprite.setAccelerationX(0);
+            sprite.setAccelerationX(this.deltaHorAcceleration);
+        }
+
+        if (this.deltaHorAcceleration) {
+            sprite.body.acceleration.x += this.deltaHorAcceleration;
         }
 
         if (onGround && up) {

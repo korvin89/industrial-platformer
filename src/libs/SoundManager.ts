@@ -62,6 +62,11 @@ export default class SoundManager {
         this.manager.stopByKey(this.bgKey);
     }
 
+    isBGMusicPlaying() {
+        const sound = this.manager.get(this.bgKey);
+        return sound?.isPlaying;
+    }
+
     step() {
         const {STEP} = VOLUME_KEY;
         const now = Date.now();
