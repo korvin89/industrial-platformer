@@ -74,15 +74,23 @@ export default class BootScene extends Phaser.Scene {
         this.load.spritesheet('gun', `${PATH.SPRITESHEET}/gun.png`, FRAME_CONFIG);
         this.load.spritesheet('button', `${PATH.SPRITESHEET}/button.png`, FRAME_CONFIG);
         this.load.spritesheet('lever', `${PATH.SPRITESHEET}/lever.png`, FRAME_CONFIG);
+        this.load.spritesheet('tube_switcher', `${PATH.SPRITESHEET}/tube_switcher.png`, FRAME_CONFIG);
         this.load.spritesheet('hiding_platform', `${PATH.SPRITESHEET}/hiding_platform.png`, FRAME_CONFIG);
         this.load.spritesheet('reflector', `${PATH.SPRITESHEET}/reflector.png`, FRAME_CONFIG);
         this.load.spritesheet('glorg', `${PATH.SPRITESHEET}/glorg.png`, FRAME_CONFIG);
         this.load.spritesheet('charger', `${PATH.SPRITESHEET}/charger.png`, FRAME_CONFIG);
         this.load.spritesheet('robot1', `${PATH.SPRITESHEET}/robot1.png`, FRAME_CONFIG);
         this.load.spritesheet('bat', `${PATH.SPRITESHEET}/bat.png`, {frameWidth: 16, frameHeight: 16});
+        this.load.spritesheet('steam_small', `${PATH.SPRITESHEET}/steam_small.png`, FRAME_CONFIG);
+        this.load.spritesheet(
+            'steam_big',
+            `${PATH.SPRITESHEET}/steam_big.png`,
+            {frameWidth: 128, frameHeight: 64},
+        );
 
         this.load.spritesheet('button_music', `${PATH.SPRITESHEET}/button_music.png`, FRAME_CONFIG);
         this.load.spritesheet('button_sfx', `${PATH.SPRITESHEET}/button_sfx.png`, FRAME_CONFIG);
+        this.load.spritesheet('button_level', `${PATH.SPRITESHEET}/button_level.png`, FRAME_CONFIG);
         this.load.spritesheet(
             'button_left',
             `${PATH.SPRITESHEET}/button_left.png`,
@@ -116,10 +124,19 @@ export default class BootScene extends Phaser.Scene {
         this.load.tilemapTiledJSON('mapL2', `${PATH.TILEMAPS}/warehouse_v2_L2.json`);
         this.load.tilemapTiledJSON('mapL3', `${PATH.TILEMAPS}/warehouse_v2_L3.json`);
         this.load.tilemapTiledJSON('mapL4', `${PATH.TILEMAPS}/warehouse_v2_L4.json`);
+        this.load.tilemapTiledJSON('mapL5', `${PATH.TILEMAPS}/warehouse_v2_L5.json`);
 
         this.load.audio('bg_1', [`${PATH.SOUNDS}/background/bg_1.ogg`, `${PATH.SOUNDS}/background/bg_1.mp3`]);
         this.load.audio('die', [`${PATH.SOUNDS}/player/die.ogg`, `${PATH.SOUNDS}/player/die.mp3`]);
         this.load.audio('jump', [`${PATH.SOUNDS}/player/jump.ogg`, `${PATH.SOUNDS}/player/jump.mp3`]);
+        this.load.audio('jump1', [`${PATH.SOUNDS}/player/jump1.ogg`, `${PATH.SOUNDS}/player/jump1.mp3`]);
+        this.load.audio('jump2', [`${PATH.SOUNDS}/player/jump2.ogg`, `${PATH.SOUNDS}/player/jump2.mp3`]);
+        this.load.audio('jump3', [`${PATH.SOUNDS}/player/jump3.ogg`, `${PATH.SOUNDS}/player/jump3.mp3`]);
+        this.load.audio('jump4', [`${PATH.SOUNDS}/player/jump4.ogg`, `${PATH.SOUNDS}/player/jump4.mp3`]);
+        this.load.audio('jump5', [`${PATH.SOUNDS}/player/jump5.ogg`, `${PATH.SOUNDS}/player/jump5.mp3`]);
+        this.load.audio('jump6', [`${PATH.SOUNDS}/player/jump6.ogg`, `${PATH.SOUNDS}/player/jump6.mp3`]);
+        this.load.audio('jump7', [`${PATH.SOUNDS}/player/jump7.ogg`, `${PATH.SOUNDS}/player/jump7.mp3`]);
+        this.load.audio('jump8', [`${PATH.SOUNDS}/player/jump8.ogg`, `${PATH.SOUNDS}/player/jump8.mp3`]);
         this.load.audio('land', [`${PATH.SOUNDS}/player/land.ogg`, `${PATH.SOUNDS}/player/land.mp3`]);
         this.load.audio('hit', [`${PATH.SOUNDS}/player/hit.ogg`, `${PATH.SOUNDS}/player/hit.mp3`]);
         this.load.audio('step', [`${PATH.SOUNDS}/player/step.ogg`, `${PATH.SOUNDS}/player/step.mp3`]);
@@ -128,12 +145,27 @@ export default class BootScene extends Phaser.Scene {
         this.load.audio('lever', [`${PATH.SOUNDS}/environment/lever.ogg`, `${PATH.SOUNDS}/environment/lever.mp3`]);
         this.load.audio('jumper', [`${PATH.SOUNDS}/environment/jumper.ogg`, `${PATH.SOUNDS}/environment/jumper.mp3`]);
         this.load.audio('reflector',
-            [`${PATH.SOUNDS}/environment/reflector.ogg`, `${PATH.SOUNDS}/environment/reflector.mp3`],
+            [
+                `${PATH.SOUNDS}/environment/reflector.ogg`,
+                `${PATH.SOUNDS}/environment/reflector.mp3`,
+            ],
         );
         this.load.audio('reflector_collide',
             [
                 `${PATH.SOUNDS}/environment/reflector_collide.ogg`,
                 `${PATH.SOUNDS}/environment/reflector_collide.mp3`,
+            ],
+        );
+        this.load.audio('steam_big',
+            [
+                `${PATH.SOUNDS}/environment/steam_big.ogg`,
+                `${PATH.SOUNDS}/environment/steam_big.mp3`,
+            ],
+        );
+        this.load.audio('steam_small',
+            [
+                `${PATH.SOUNDS}/environment/steam_small.ogg`,
+                `${PATH.SOUNDS}/environment/steam_small.mp3`,
             ],
         );
     }

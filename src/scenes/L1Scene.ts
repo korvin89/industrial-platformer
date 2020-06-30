@@ -1,10 +1,11 @@
 import Phaser from 'phaser';
-import TumblerButton from '../components/UI/TumblerButton';
+import Toast from '../components/UI/Toast';
 import Player from '../components/Player';
 import Sphere from '../components/enviroment/Sphere';
 import Lever from '../components/enviroment/Lever';
 import HidingPlatform from '../components/enviroment/HidingPlatform';
 import SoundManager from '../libs/SoundManager';
+import {createUIControls} from '../libs/helpers';
 import {DEFAULT_VOLUME_CONFIG} from '../constants/game';
 import {Point} from '../typings/game';
 
@@ -27,23 +28,11 @@ export default class L1Scene extends Phaser.Scene {
         const isTouch = this.sys.game.device.input.touch;
 
         this.soundManager = new SoundManager({
-            manager: this.sound,
+            scene: this,
             volumeConfig: volumeConfig || {...DEFAULT_VOLUME_CONFIG},
         });
 
         this.isPlayerDisabled = false;
-
-        if (!isTouch) {
-            this.add
-                .text(16, 16, 'Arrow keys or WASD to move & jump\nSpace to hit', {
-                    font: '18px monospace',
-                    fill: '#000000',
-                    padding: {x: 20, y: 10},
-                    backgroundColor: '#ffffff',
-                })
-                .setScrollFactor(0)
-                .setDepth(11);
-        }
 
         this.tilemap = this.make.tilemap({key: 'mapL1'});
         const tiles = this.tilemap.addTilesetImage('industrial.v2', 'tiles');
@@ -51,7 +40,7 @@ export default class L1Scene extends Phaser.Scene {
         this.obstacles = this.tilemap.createDynamicLayer('obstacles', tiles);
         this.tilemap.createDynamicLayer('foreground', tiles).setDepth(10);
 
-        this.createUI();
+        createUIControls(this, this.soundManager);
         this.createPlayer();
         this.createHidingPlatform();
         this.createLever();
@@ -70,6 +59,11 @@ export default class L1Scene extends Phaser.Scene {
             setTimeout(() => {
                 this.scale.startFullscreen();
             }, 1000);
+        } else {
+            this.time.addEvent({
+                delay: 1000,
+                callback: () => this.createHelpToast(),
+            });
         }
     }
 
@@ -77,36 +71,14 @@ export default class L1Scene extends Phaser.Scene {
         return this.tilemap.findObject(scope, ({name}) => name === target) as Point;
     }
 
-    createUI() {
-        const {bgMusicMuted, sfxMuted} = this.soundManager;
-
-        new TumblerButton({
+    createHelpToast() {
+        const toast = new Toast({
             scene: this,
-            texture: 'button_music',
-            x: this.cameras.main.width - 32,
-            y: 32,
-            switchedOn: !bgMusicMuted,
-            onSwitchOn: () => {
-                this.soundManager.unmuteBGMusic();
-            },
-            onSwitchOff: () => {
-                this.soundManager.muteBGMusic();
-            },
+            x: 16,
+            y: 16,
+            text: 'Arrow keys or WASD to move & jump\nSpace to hit',
         });
-
-        new TumblerButton({
-            scene: this,
-            texture: 'button_sfx',
-            x: this.cameras.main.width - 32,
-            y: 74,
-            switchedOn: !sfxMuted,
-            onSwitchOn: () => {
-                this.soundManager.unmuteSFX();
-            },
-            onSwitchOff: () => {
-                this.soundManager.muteSFX();
-            },
-        });
+        toast.show();
     }
 
     createPlayer() {
@@ -198,7 +170,6 @@ export default class L1Scene extends Phaser.Scene {
 
         cam.once('camerafadeoutcomplete', () => {
             const {volumeConfig} = this.soundManager;
-
             this.player.destroy();
             this.scene.start('L2', {volumeConfig});
         });
