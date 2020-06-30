@@ -63,7 +63,15 @@ export default class L1Scene extends Phaser.Scene {
         this.cameras.main.startFollow(this.player.sprite, true, 0.1, 0.1);
         this.cameras.main.setBounds(0, 0, this.tilemap.widthInPixels, this.tilemap.heightInPixels);
 
-        this.soundManager.playBGMusic();
+        if (!this.soundManager.isBGMusicPlaying()) {
+            this.soundManager.playBGMusic();
+        }
+
+        if (this.sys.game.device.input.touch) {
+            setTimeout(() => {
+                this.scale.startFullscreen();
+            }, 1000);
+        }
     }
 
     getPoint(scope: string, target: string) {
@@ -304,7 +312,6 @@ export default class L1Scene extends Phaser.Scene {
 
         this.player.freeze();
 
-        this.soundManager.stopBGMusic();
         this.soundManager.die();
 
         cam.once('camerafadeoutcomplete', () => {

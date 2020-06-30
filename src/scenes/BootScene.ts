@@ -103,6 +103,11 @@ export default class BootScene extends Phaser.Scene {
             `${PATH.SPRITESHEET}/button_hit.png`,
             {frameWidth: 64, frameHeight: 64},
         );
+        this.load.spritesheet(
+            'track',
+            `${PATH.SPRITESHEET}/track.png`,
+            {frameWidth: 128, frameHeight: 32},
+        );
 
         this.load.image('spike', `${PATH.IMAGES}/spike.png`);
         this.load.image('jumper_opened', `${PATH.IMAGES}/jumper_opened.png`);
@@ -110,6 +115,7 @@ export default class BootScene extends Phaser.Scene {
         this.load.tilemapTiledJSON('mapL1', `${PATH.TILEMAPS}/warehouse_v2_L1.json`);
         this.load.tilemapTiledJSON('mapL2', `${PATH.TILEMAPS}/warehouse_v2_L2.json`);
         this.load.tilemapTiledJSON('mapL3', `${PATH.TILEMAPS}/warehouse_v2_L3.json`);
+        this.load.tilemapTiledJSON('mapL4', `${PATH.TILEMAPS}/warehouse_v2_L4.json`);
 
         this.load.audio('bg_1', [`${PATH.SOUNDS}/background/bg_1.ogg`, `${PATH.SOUNDS}/background/bg_1.mp3`]);
         this.load.audio('die', [`${PATH.SOUNDS}/player/die.ogg`, `${PATH.SOUNDS}/player/die.mp3`]);
