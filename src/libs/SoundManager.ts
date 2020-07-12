@@ -5,12 +5,13 @@ import {VOLUME_KEY, DEFAULT_VOLUME_CONFIG} from '../constants/game';
 const STEP_COOLDOWN = 300;
 
 export interface ISoundManager {
-    manager: Phaser.Sound.BaseSoundManager;
+    scene: Phaser.Scene;
     volumeConfig: {[key: string]: number};
     bgKey?: string;
 }
 
 export default class SoundManager {
+    scene: Phaser.Scene;
     manager: Phaser.Sound.BaseSoundManager;
     bgKey = 'bg_1';
     volumeConfig: {[key: string]: number};
@@ -19,7 +20,8 @@ export default class SoundManager {
     sfxMuted: boolean;
 
     constructor(props: ISoundManager) {
-        this.manager = props.manager;
+        this.scene = props.scene;
+        this.manager = props.scene.sound;
         this.volumeConfig = props.volumeConfig;
         this.bgMusicMuted = this.volumeConfig[this.bgKey] === 0;
         this.sfxMuted = this.volumeConfig[VOLUME_KEY.JUMP] === 0;
@@ -80,8 +82,10 @@ export default class SoundManager {
     }
 
     jump() {
+        // Between
+        const index = Phaser.Math.Between(1, 8);
         const {JUMP} = VOLUME_KEY;
-        this.manager.play(JUMP, {volume: this.volumeConfig[JUMP]});
+        this.manager.play(`jump${index}`, {volume: this.volumeConfig[JUMP]});
     }
 
     land() {
@@ -122,6 +126,28 @@ export default class SoundManager {
     lever() {
         const {LEVER} = VOLUME_KEY;
         this.manager.play(LEVER, {volume: this.volumeConfig[LEVER]});
+    }
+
+    steamSmall(x: number, y: number) {
+        const {STEAM_SMALL} = VOLUME_KEY;
+        const inViewport = this.scene.cameras.main.worldView.contains(x, y);
+
+        if (!inViewport) {
+            return;
+        }
+
+        this.manager.play(STEAM_SMALL, {volume: this.volumeConfig[STEAM_SMALL]});
+    }
+
+    steamBig(x: number, y: number) {
+        const {STEAM_BIG} = VOLUME_KEY;
+        const inViewport = this.scene.cameras.main.worldView.contains(x, y);
+
+        if (!inViewport) {
+            return;
+        }
+
+        this.manager.play(STEAM_BIG, {volume: this.volumeConfig[STEAM_BIG]});
     }
 
     sphere() {

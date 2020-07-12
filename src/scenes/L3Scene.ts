@@ -1,5 +1,4 @@
 import Phaser from 'phaser';
-import TumblerButton from '../components/UI/TumblerButton';
 import Player from '../components/Player';
 import Sphere from '../components/enviroment/Sphere';
 import Lever from '../components/enviroment/Lever';
@@ -7,6 +6,8 @@ import Jumper from '../components/enviroment/Jumper';
 import HidingPlatform from '../components/enviroment/HidingPlatform';
 import Bat from '../components/hazard/Bat';
 import SoundManager from '../libs/SoundManager';
+import {createUIControls} from '../libs/helpers';
+import {DEFAULT_VOLUME_CONFIG} from '../constants/game';
 import {Point} from '../typings/game';
 
 
@@ -29,8 +30,11 @@ export default class L1Scene extends Phaser.Scene {
         super('L3');
     }
 
-    create({volumeConfig}: {volumeConfig: {[key: string]: number}}) {
-        this.soundManager = new SoundManager({volumeConfig, manager: this.sound});
+    create({volumeConfig}: {volumeConfig?: {[key: string]: number}}) {
+        this.soundManager = new SoundManager({
+            scene: this,
+            volumeConfig: volumeConfig || {...DEFAULT_VOLUME_CONFIG},
+        });
         this.isPlayerDisabled = false;
 
         this.tilemap = this.make.tilemap({key: 'mapL3'});
@@ -39,7 +43,7 @@ export default class L1Scene extends Phaser.Scene {
         this.obstacles = this.tilemap.createDynamicLayer('obstacles', tiles);
         this.tilemap.createDynamicLayer('foreground', tiles).setDepth(10);
 
-        this.createUI();
+        createUIControls(this, this.soundManager);
         this.createSpikes();
         this.createPlayer();
         this.createHidingPlatform();
@@ -86,38 +90,6 @@ export default class L1Scene extends Phaser.Scene {
 
     getPoints(scope: string, targets: string[]) {
         return targets.map((target) => this.getPoint(scope, target));
-    }
-
-    createUI() {
-        const {bgMusicMuted, sfxMuted} = this.soundManager;
-
-        new TumblerButton({
-            scene: this,
-            texture: 'button_music',
-            x: this.cameras.main.width - 32,
-            y: 32,
-            switchedOn: !bgMusicMuted,
-            onSwitchOn: () => {
-                this.soundManager.unmuteBGMusic();
-            },
-            onSwitchOff: () => {
-                this.soundManager.muteBGMusic();
-            },
-        });
-
-        new TumblerButton({
-            scene: this,
-            texture: 'button_sfx',
-            x: this.cameras.main.width - 32,
-            y: 74,
-            switchedOn: !sfxMuted,
-            onSwitchOn: () => {
-                this.soundManager.unmuteSFX();
-            },
-            onSwitchOff: () => {
-                this.soundManager.muteSFX();
-            },
-        });
     }
 
     createSpikes() {

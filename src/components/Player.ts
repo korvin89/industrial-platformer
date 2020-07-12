@@ -21,6 +21,7 @@ export default class Player {
     sprite: Phaser.GameObjects.Sprite;
     flash: Phaser.GameObjects.Sprite;
     keys: IKeys | null = null;
+    gamepad: Phaser.Input.Gamepad.Gamepad | null = null;
     leftBtn: ActionButton | null = null;
     rightBtn: ActionButton | null = null;
     upBtn: ActionButton | null = null;
@@ -113,6 +114,10 @@ export default class Player {
                 d: D,
             }) as IKeys;
         }
+
+        this.scene.input.gamepad.once('down', (pad: Phaser.Input.Gamepad.Gamepad) => {
+            this.gamepad = pad;
+        });
     }
 
     createSprite(x: number, y: number) {
@@ -167,13 +172,18 @@ export default class Player {
     update() {
         const {keys, sprite} = this;
 
+        // console.log(this.gamepad)
+
         const now = Date.now();
         const onGround = sprite.body.blocked.down;
-        const acceleration = onGround ? 400 : 200;
-        const left = keys?.left.isDown || keys?.a.isDown || this.leftBtn?.pressed;
-        const right = keys?.right.isDown || keys?.d.isDown || this.rightBtn?.pressed;
-        const up = keys?.up.isDown || keys?.w.isDown || this.upBtn?.pressed;
-        const hit = keys?.space.isDown || this.hitBtn?.pressed;
+        const acceleration = onGround ? 400 : 300;
+        const left = keys?.left.isDown || keys?.a.isDown
+            || this.leftBtn?.pressed || this.gamepad?.left;
+        const right = keys?.right.isDown || keys?.d.isDown
+            || this.rightBtn?.pressed || this.gamepad?.right;
+        const up = keys?.up.isDown || keys?.w.isDown
+            || this.upBtn?.pressed || this.gamepad?.A;
+        const hit = keys?.space.isDown || this.hitBtn?.pressed || this.gamepad?.X;
 
         if (left) {
             if (sprite.body.velocity.x > 0) {
@@ -241,6 +251,11 @@ export default class Player {
     }
 
     destroy() {
+        this.gamepad?.pad?.vibrationActuator?.playEffect?.('dual-rumble', {
+            duration: 300,
+            strongMagnitude: 1.0,
+            weakMagnitude: 0.5,
+        });
         this.sprite.destroy();
     }
 }

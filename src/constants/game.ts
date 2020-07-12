@@ -15,6 +15,8 @@ export const VOLUME_KEY = {
     REFLECTOR_COLLIDE: 'reflector_collide',
     LEVER: 'lever',
     SPHERE: 'sphere',
+    STEAM_BIG: 'steam_big',
+    STEAM_SMALL: 'steam_small',
 };
 
 export const DEFAULT_VOLUME_CONFIG: {[key: string]: number} = {
@@ -30,4 +32,6 @@ export const DEFAULT_VOLUME_CONFIG: {[key: string]: number} = {
     [VOLUME_KEY.REFLECTOR_COLLIDE]: 0.5,
     [VOLUME_KEY.LEVER]: 0.4,
     [VOLUME_KEY.SPHERE]: 0.5,
+    [VOLUME_KEY.STEAM_BIG]: 0.3,
+    [VOLUME_KEY.STEAM_SMALL]: 0.5,
 };
